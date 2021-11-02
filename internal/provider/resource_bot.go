@@ -135,6 +135,8 @@ func resourceBotUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	d.SetId(bot.Id)
+	// version gets updated with each re-import
+	d.Set("version", bot.Version)
 
 	return diags
 }

@@ -65,6 +65,30 @@ func (c *AwsClient) GetBot(botId string, alias string) (LexBot, error) {
 		}
 	}
 
+	if bot.AliasId != "" {
+
+		// describe the bot to get its lambda arn
+		var describeBotAliasOutput *lexmodelsv2.DescribeBotAliasOutput
+
+		describeBotAliasOutput, err = c.Client.DescribeBotAlias(context.TODO(),
+			&lexmodelsv2.DescribeBotAliasInput{
+				BotAliasId: &bot.AliasId,
+				BotId:      &botId,
+			})
+
+		if err != nil {
+			return LexBot{}, fmt.Errorf("error describing bot alias %s: %s", bot.AliasId, err)
+		}
+
+		if describeBotAliasOutput.BotAliasLocaleSettings != nil {
+			usLocalSettings, ok := describeBotAliasOutput.BotAliasLocaleSettings["en_US"]
+
+			if ok && usLocalSettings.CodeHookSpecification != nil {
+				bot.LambdaArn = *usLocalSettings.CodeHookSpecification.LambdaCodeHook.LambdaARN
+			}
+		}
+	}
+
 	return bot, err
 }
 

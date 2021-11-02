@@ -9,7 +9,7 @@ terraform {
 
 data "awslex_bot_resource" "socal_gas_qnabot" {
 
-  id = "QU1ORIZZTP"
+  id = "EKYRQZCTNM"
 
   alias = "version7"
 

@@ -14,14 +14,35 @@ provider "aws" {
   region = "us-west-2"
 }
 
+data "aws_caller_identity" "current" {}
+
+locals {
+  bot_description = "Terraform Bot"
+  lambda_version = 1
+  lambda_arn = "arn:aws:lambda:us-west-2:580753938011:function:QnABot-FulfillmentLambda-iGXdhe8RHdyH"
+  lambda_versioned_arn = "${local.lambda_arn}:${local.lambda_version}"
+  account_id = data.aws_caller_identity.current.account_id
+  bot_id = resource.awslex_bot_resource.socal_gas_qnabot.id
+  bot_alias_id = resource.awslex_bot_resource.socal_gas_qnabot.alias_id
+  bot_default_alias_id = data.awslex_bot_resource.socal_gas_qnabot.id
+}
+
+# create the archive that will be used to create the Lex bot
+module "bot_archive" {
+  source = "./manifest"
+  bot_description = local.bot_description
+}
+
 resource "awslex_bot_resource" "socal_gas_qnabot" {
 
+  depends_on = [module.bot_archive]
   name = "TerraBot"
 
-  description = "Terraform Bot"
-  # path to the archive in s3 containing the bot manifest archive file, 
-  # in import/export format
-  archive_path = "/mnt/c/Users/tomj/Downloads/QnABot_QnaBot-6-USX2IJSEYW-LexJson.zip"
+  description = local.bot_description
+
+  # path to the bot manifest archive file, in bot import/export format
+  archive_path = module.bot_archive.archive_path
+
   # version of the bot
   # note: version variable is set to Build.SourceBranch for feature 
   #   branch pipelines, and set to a specific release number on staging or 
@@ -33,18 +54,6 @@ resource "awslex_bot_resource" "socal_gas_qnabot" {
   lambda_arn = local.lambda_versioned_arn
 
   iam_role = "arn:aws:iam::580753938011:role/aws-service-role/lexv2.amazonaws.com/AWSServiceRoleForLexV2Bots_1PKK306M5NW"
-}
-
-data "aws_caller_identity" "current" {}
-
-locals {
-  lambda_version = 1
-  lambda_arn = "arn:aws:lambda:us-west-2:580753938011:function:QnABot-FulfillmentLambda-iGXdhe8RHdyH"
-  lambda_versioned_arn = "${local.lambda_arn}:${local.lambda_version}"
-  account_id = data.aws_caller_identity.current.account_id
-  bot_id = resource.awslex_bot_resource.socal_gas_qnabot.id
-  bot_alias_id = resource.awslex_bot_resource.socal_gas_qnabot.alias_id
-  bot_default_alias_id = data.awslex_bot_resource.socal_gas_qnabot.id
 }
 
 // give the bot alias permission to invoke the lambda

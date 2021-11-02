@@ -1,6 +1,6 @@
-# Terraform Provider Alexa Skills
+# Terraform Provider AWS Lex
 
-Provider for building alexa skills via terraform
+Provider for building aws lexv2 bots via terraform
 
 ## Requirements
 

@@ -5,6 +5,7 @@ example.tf
 .terraform.lock.hcl
 terraform.tfplan
 terraform.tfstate
+bot.zip
 bin/
 dist/
 modules-dev/

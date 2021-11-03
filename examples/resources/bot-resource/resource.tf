@@ -47,11 +47,11 @@ resource "awslex_bot_resource" "socal_gas_qnabot" {
   source_code_hash = module.bot_archive.archive_sha
 
   # version of the bot
-  # note: version variable is set to Build.SourceBranch for feature 
+  # note: version variable should be set to Build.SourceBranch for feature 
   #   branch pipelines, and set to a specific release number on staging or 
   #   prod pipelines
   # note: this results in one, testable bot per feature branch
-  alias = "version1"
+  alias = "feature_initial-greeting"
 
   # arn of the lambda that fulfills the bot intents
   lambda_arn = local.lambda_versioned_arn
@@ -90,4 +90,8 @@ resource "aws_lambda_permission" "default_alias" {
   principal     = "lexv2.amazonaws.com"
   source_arn    = "arn:aws:lex:us-west-2:${local.account_id}:bot-alias/${local.bot_id}/${local.bot_default_alias_id}"
   qualifier     = local.lambda_version
+}
+
+output "test_suggestion" {
+  value = "aws lexv2-runtime recognize-text --bot-id '${local.bot_id}' --bot-alias-id '${local.bot_alias_id}' --locale-id 'en_US' --session-id 'test_session' --text 'forgot password'"
 }

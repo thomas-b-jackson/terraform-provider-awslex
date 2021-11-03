@@ -25,7 +25,7 @@ locals {
     }
   ]
 
-  slot_type_values = flatten([for s in local.intents: [for q in s.questions: {"sampleValue": {"value": q}, "synonyms": []}]])  
+  slot_type_values = flatten([for s in local.intents: [for q in s.questions: {"sampleValue": {"value": q}, "synonyms": null}]])  
 }
 
 data "template_file" "slot_types" {

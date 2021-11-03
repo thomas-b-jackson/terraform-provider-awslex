@@ -3,8 +3,8 @@ package aws_client
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
@@ -364,7 +364,8 @@ func (c *AwsClient) upload(archivePath string) (string, error) {
 		Timeout: time.Second * 10,
 	}
 
-	b, err := ioutil.ReadFile(archivePath)
+	// b := []byte(archivePath)
+	b, err := base64.StdEncoding.DecodeString(archivePath)
 	if err != nil {
 		return uploadId, err
 	}

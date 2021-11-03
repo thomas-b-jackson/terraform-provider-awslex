@@ -16,7 +16,7 @@ locals {
     },
     {
         id = "password-reset"
-        questions = ["how do I reset my password?",
+        questions = ["how do I reset my password",
                     "I forgot my password",
                     "Can't remember my password",
                     "My login does not work"]

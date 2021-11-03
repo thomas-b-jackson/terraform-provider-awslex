@@ -49,6 +49,11 @@ func resourceBot() *schema.Resource {
 				Required:    true,
 				Description: "Path to the zip archive containing intents and slots",
 			},
+			"source_code_hash": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Base64-encoded representation of the SHA-256 sum of the zip file",
+			},
 			"lambda_arn": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -79,6 +84,7 @@ func resourceBotCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 	bot.Description = d.Get("description").(string)
 	bot.IamRoleArn = d.Get("iam_role").(string)
 	bot.ArchivePath = d.Get("archive_path").(string)
+	bot.SourceCodeHash = d.Get("source_code_hash").(string)
 
 	awsClient := meta.(*aws_client.AwsClient)
 
@@ -120,6 +126,7 @@ func resourceBotUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 	bot.IamRoleArn = d.Get("iam_role").(string)
 	bot.ArchivePath = d.Get("archive_path").(string)
 	bot.Version = d.Get("version").(string)
+	bot.SourceCodeHash = d.Get("source_code_hash").(string)
 
 	awsClient := meta.(*aws_client.AwsClient)
 
@@ -135,7 +142,7 @@ func resourceBotUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	d.SetId(bot.Id)
-	// version gets updated with each re-import
+	// version gets updated with each update
 	d.Set("version", bot.Version)
 
 	return diags

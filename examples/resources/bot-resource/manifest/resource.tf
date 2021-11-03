@@ -9,7 +9,7 @@ locals {
     {   
         id = "gas-leak"
         questions = ["I smell gas in my house. What should I do?",
-                    "help my gas is leakings",
+                    "help my gas is leaking",
                     "emergency gas leak"]
 
         answer = "For Gas Emergencies or Safety Issues call Emergencies: 911 For general safety issues: 1-800-427-2200"
@@ -120,11 +120,16 @@ data "archive_file" "bot" {
   }
 }
 
-resource "local_file" "question_answer_pairs" {
-    content     = jsonencode(local.intents)
-    filename = "${path.module}/artifacts/pairs.json"
-}
+# for debugging
+# resource "local_file" "question_answer_pairs" {
+#     content     = jsonencode(local.intents)
+#     filename = "${path.module}/artifacts/pairs.json"
+# }
 
 output "archive_path" {
   value = data.archive_file.bot.output_path
+}
+
+output "archive_sha" {
+  value = data.archive_file.bot.output_sha
 }

@@ -9,6 +9,7 @@ bot.zip
 bin/
 dist/
 modules-dev/
+artifacts/
 /pkg/
 website/.vagrant
 website/.bundle

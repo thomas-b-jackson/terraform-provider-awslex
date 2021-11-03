@@ -55,6 +55,11 @@ func dataSourceBot() *schema.Resource {
 				Computed:    true,
 				Description: "IAM role of bot",
 			},
+			"source_code_hash": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Base64-encoded representation of raw SHA-256 sum of the zip file",
+			},
 		},
 	}
 }
@@ -87,6 +92,7 @@ func dataSourceBotRead(ctx context.Context, d *schema.ResourceData, meta interfa
 	d.Set("description", bot.Description)
 	d.Set("version", bot.Version)
 	d.Set("alias_id", bot.AliasId)
+	d.Set("source_code_hash", bot.SourceCodeHash)
 
 	return diags
 }

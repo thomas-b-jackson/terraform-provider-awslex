@@ -14,19 +14,21 @@ import (
 )
 
 type LexBot struct {
-	Id          string
-	Name        string
-	Alias       string
-	AliasId     string
-	Version     string
-	ArchivePath string
-	Description string
-	LambdaArn   string
-	IamRoleArn  string
+	Id             string
+	Name           string
+	Alias          string
+	AliasId        string
+	Version        string
+	ArchivePath    string
+	Description    string
+	LambdaArn      string
+	IamRoleArn     string
+	SourceCodeHash string
 }
 
 // wait up to this many seconds for long-running bot operations to to complete
 const BotWaitTimeoutSec = 60
+const DraftVersion = "DRAFT"
 
 func (c *AwsClient) GetBot(botId string, alias string) (LexBot, error) {
 
@@ -62,6 +64,8 @@ func (c *AwsClient) GetBot(botId string, alias string) (LexBot, error) {
 			bot.Alias = *botAlias.BotAliasName
 			bot.AliasId = *botAlias.BotAliasId
 			bot.Version = *botAlias.BotVersion
+
+			log.Printf("[DEBUG] params pulled from alias, requested alias: %s, actual alias: %s, version: %s\n", alias, *botAlias.BotAliasName, bot.Version)
 		}
 	}
 
@@ -89,66 +93,24 @@ func (c *AwsClient) GetBot(botId string, alias string) (LexBot, error) {
 		}
 	}
 
-	return bot, err
-}
+	if bot.Version != "" && bot.Version != DraftVersion {
 
-func (c *AwsClient) GetBotComplete(botId string, alias string) (LexBot, error) {
+		// describe the bot version to get its source code hash
+		var describeBotVersionOutput *lexmodelsv2.DescribeBotVersionOutput
 
-	var bot LexBot
+		describeBotVersionOutput, err = c.Client.DescribeBotVersion(context.TODO(),
+			&lexmodelsv2.DescribeBotVersionInput{
+				BotId:      &botId,
+				BotVersion: &bot.Version,
+			})
 
-	botDescription, err := c.Client.DescribeBot(context.TODO(),
-		&lexmodelsv2.DescribeBotInput{
-			BotId: &botId,
-		})
-
-	if err != nil {
-		return LexBot{}, err
-	}
-
-	bot.Name = *botDescription.BotName
-	if botDescription.Description != nil {
-		bot.Description = *botDescription.Description
-	}
-	bot.IamRoleArn = *botDescription.RoleArn
-
-	botAlias, err := c.Client.ListBotAliases(context.TODO(),
-		&lexmodelsv2.ListBotAliasesInput{
-			BotId: &botId,
-		})
-
-	if err != nil {
-		return bot, err
-	}
-
-	for _, botAlias := range botAlias.BotAliasSummaries {
-		if *botAlias.BotAliasName == alias {
-			bot.Id = botId
-			bot.Alias = *botAlias.BotAliasName
-			bot.AliasId = *botAlias.BotAliasId
+		if err != nil {
+			return LexBot{}, fmt.Errorf("error describing bot version %s. cannot get hash: %s", bot.AliasId, err)
 		}
-	}
 
-	if bot.AliasId == "" {
-		return LexBot{}, fmt.Errorf("bot %s with alias %s does not exist", botId, alias)
-	}
-	// next describe the bot to get its lambda arn
-	var describeBotAliasOutput *lexmodelsv2.DescribeBotAliasOutput
-
-	describeBotAliasOutput, err = c.Client.DescribeBotAlias(context.TODO(),
-		&lexmodelsv2.DescribeBotAliasInput{
-			BotAliasId: &bot.AliasId,
-			BotId:      &botId,
-		})
-
-	if err != nil {
-		return LexBot{}, fmt.Errorf("error describing bot alias %s: %s", bot.AliasId, err)
-	}
-
-	if describeBotAliasOutput.BotAliasLocaleSettings != nil {
-		usLocalSettings, ok := describeBotAliasOutput.BotAliasLocaleSettings["en_US"]
-
-		if ok && usLocalSettings.CodeHookSpecification != nil {
-			bot.LambdaArn = *usLocalSettings.CodeHookSpecification.LambdaCodeHook.LambdaARN
+		// the description field is used to store the source code hash
+		if describeBotVersionOutput.Description != nil {
+			bot.SourceCodeHash = *describeBotVersionOutput.Description
 		}
 	}
 
@@ -345,6 +307,7 @@ func (c *AwsClient) importBot(uploadId string,
 
 	return err
 }
+
 func (c *AwsClient) upload(archivePath string) (string, error) {
 
 	var uploadId string
@@ -453,6 +416,8 @@ func (c *AwsClient) createVersion(bot *LexBot) error {
 
 	createBotVersionOutput, err := c.Client.CreateBotVersion(context.TODO(), &lexmodelsv2.CreateBotVersionInput{
 		BotId: &bot.Id,
+		// use the description field to store the source code hash
+		Description: &bot.SourceCodeHash,
 		BotVersionLocaleSpecification: map[string]types.BotVersionLocaleDetails{
 			"en_US": {
 				SourceBotVersion: getAddr(bot.Version),
@@ -499,8 +464,8 @@ func (c *AwsClient) buildBot(bot *LexBot) error {
 
 	_, err := c.Client.BuildBotLocale(context.TODO(), &lexmodelsv2.BuildBotLocaleInput{
 		BotId: &bot.Id,
-		// The version of the bot to build can only be the draft version of the bot
-		BotVersion: getAddr("DRAFT"),
+		// The version of the bot to build can only be the draft version
+		BotVersion: getAddr(DraftVersion),
 		LocaleId:   getAddr("en_US"),
 	})
 
@@ -514,7 +479,7 @@ func (c *AwsClient) buildBot(bot *LexBot) error {
 	for {
 		describeBotLocaleOutput, err := c.Client.DescribeBotLocale(context.TODO(), &lexmodelsv2.DescribeBotLocaleInput{
 			BotId:      &bot.Id,
-			BotVersion: &bot.Version,
+			BotVersion: getAddr(DraftVersion),
 			LocaleId:   getAddr("en_US"),
 		})
 

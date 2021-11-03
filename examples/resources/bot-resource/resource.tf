@@ -43,6 +43,9 @@ resource "awslex_bot_resource" "socal_gas_qnabot" {
   # path to the bot manifest archive file, in bot import/export format
   archive_path = module.bot_archive.archive_path
 
+  # detect changes to the bot sources and update the bot
+  source_code_hash = module.bot_archive.archive_sha
+
   # version of the bot
   # note: version variable is set to Build.SourceBranch for feature 
   #   branch pipelines, and set to a specific release number on staging or 

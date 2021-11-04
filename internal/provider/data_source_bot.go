@@ -21,9 +21,10 @@ func dataSourceBot() *schema.Resource {
 				Description: "ID of the bot",
 			},
 			"alias": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Alias name of the bot",
+				Type:             schema.TypeString,
+				Required:         true,
+				Description:      "Alias name of the bot",
+				ValidateDiagFunc: AliasValidator,
 			},
 			"alias_id": {
 				Type:        schema.TypeString,

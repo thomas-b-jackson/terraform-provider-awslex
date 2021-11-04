@@ -8,6 +8,7 @@ terraform {
 }
 
 provider "awslex" {
+  // region = "us-west-2"
 }
 
 provider "aws" {
@@ -26,9 +27,9 @@ locals {
   bot_alias_id = resource.awslex_bot_resource.socal_gas_qnabot.alias_id
 }  
 
-# create the archive that will be used to create the Lex bot
-module "bot_archive" {
-  source = "./manifest"
+# create the file that represents the Lex bot sources
+module "bot_sources" {
+  source = "./sources"
   bot_description = local.bot_description
   intents = [
     {   
@@ -63,16 +64,16 @@ module "bot_archive" {
 
 resource "awslex_bot_resource" "socal_gas_qnabot" {
 
-  depends_on = [module.bot_archive]
+  depends_on = [module.bot_sources]
   name = "TerraBot"
 
   description = local.bot_description
 
-  # path to the bot manifest archive file, in bot import/export format
-  archive_path = module.bot_archive.archive_path
+  # path to the bot sources zip file, in bot import/export format
+  archive_path = module.bot_sources.archive_path
 
   # detect changes to the bot sources and update the bot
-  source_code_hash = module.bot_archive.archive_sha
+  source_code_hash = module.bot_sources.archive_sha
 
   # version of the bot
   # note: version variable should be set to Build.SourceBranch for feature 

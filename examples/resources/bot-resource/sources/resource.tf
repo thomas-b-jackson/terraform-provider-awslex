@@ -3,29 +3,16 @@ variable bot_description {
   description = "The description of the bot"
 }
 
+variable intents {
+  type = list(object({
+    id = string
+    questions = list(string)
+    answer = string
+  }))
+}
+
 locals {
-
-  intents = [
-    {   
-        id = "gas-leak"
-        questions = ["I smell gas in my house. What should I do?",
-                    "help my gas is leaking",
-                    "emergency gas leak"]
-
-        answer = "For Gas Emergencies or Safety Issues call Emergencies: 911 For general safety issues: 1-800-427-2200"
-    },
-    {
-        id = "password-reset"
-        questions = ["how do I reset my password",
-                    "I forgot my password",
-                    "Can't remember my password",
-                    "My login does not work"]
-
-        answer = "If you forgot your My Account password, securely reset it with an authorization code that is sent to your cellphone number on your My Account profile."
-    }
-  ]
-
-  slot_type_values = flatten([for s in local.intents: [for q in s.questions: {"sampleValue": {"value": q}, "synonyms": null}]])  
+  slot_type_values = flatten([for s in var.intents: [for q in s.questions: {"sampleValue": {"value": q}, "synonyms": null}]])  
 }
 
 data "template_file" "slot_types" {
@@ -122,7 +109,7 @@ data "archive_file" "bot" {
 
 # for debugging
 # resource "local_file" "question_answer_pairs" {
-#     content     = jsonencode(local.intents)
+#     content     = jsonencode(var.intents)
 #     filename = "${path.module}/artifacts/pairs.json"
 # }
 

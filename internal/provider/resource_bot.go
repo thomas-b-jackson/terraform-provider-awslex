@@ -3,7 +3,9 @@ package provider
 import (
 	"context"
 	"fmt"
+	"regexp"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/scg/va/aws_client"
@@ -35,9 +37,10 @@ func resourceBot() *schema.Resource {
 				Description: "name of the bot",
 			},
 			"alias": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "alias name and version of the bot",
+				Type:             schema.TypeString,
+				Required:         true,
+				Description:      "alias name and version of the bot",
+				ValidateDiagFunc: AliasValidator,
 			},
 			"alias_id": {
 				Type:        schema.TypeString,
@@ -144,6 +147,8 @@ func resourceBotUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 	d.SetId(bot.Id)
 	// version gets updated with each update
 	d.Set("version", bot.Version)
+	// alias id may get updated with each update
+	d.Set("alias_id", bot.AliasId)
 
 	return diags
 }
@@ -172,4 +177,24 @@ func resourceBotDelete(ctx context.Context, d *schema.ResourceData, meta interfa
 	d.SetId(bot.Id)
 
 	return diags
+}
+
+func AliasValidator(i interface{}, p cty.Path) diag.Diagnostics {
+	alias := i.(string)
+
+	match, err := regexp.Match("^[A-Za-z0-9_-]+$", []byte(alias))
+
+	// log.Printf("[DEBUG] regex match? match: %t, err: %s\n", match, err)
+
+	if err != nil || !match {
+		return diag.Diagnostics{
+			diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Alias contains invalid characters",
+				Detail:   "Alias contains invalid characters. Valid characters: A-Z, a-z, 0-9, -, _",
+			},
+		}
+	}
+
+	return diag.Diagnostics{}
 }

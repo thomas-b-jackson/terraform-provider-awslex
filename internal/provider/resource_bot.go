@@ -144,6 +144,8 @@ func resourceBotUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 	d.SetId(bot.Id)
 	// version gets updated with each update
 	d.Set("version", bot.Version)
+	// alias id may get updated with each update
+	d.Set("alias_id", bot.AliasId)
 
 	return diags
 }

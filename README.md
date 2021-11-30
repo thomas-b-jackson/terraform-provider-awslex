@@ -44,3 +44,9 @@ In order to run the full suite of Acceptance tests, run `make testacc`.
 ```sh
 $ make test
 ```
+
+## Release
+
+Create a release using goreleaser, [per these instructions](https://www.terraform.io/docs/registry/providers/publishing.html#using-goreleaser-locally)
+
+Note: the .goreleaser.yml file is in the root of the repository, so it does not need to be recreated.

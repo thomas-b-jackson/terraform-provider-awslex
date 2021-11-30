@@ -16,5 +16,5 @@ data "awslex_bot_resource" "socal_gas_qnabot" {
 }
 
 output "bot" {
-  value = "${data.awslex_bot_resource.socal_gas_qnabot}"
+  value = data.awslex_bot_resource.socal_gas_qnabot
 }

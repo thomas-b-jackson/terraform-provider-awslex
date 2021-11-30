@@ -1,18 +1,18 @@
-variable bot_description {
-  type = string
+variable "bot_description" {
+  type        = string
   description = "The description of the bot"
 }
 
-variable intents {
+variable "intents" {
   type = list(object({
-    id = string
+    id        = string
     questions = list(string)
-    answer = string
+    answer    = string
   }))
 }
 
 locals {
-  slot_type_values = flatten([for s in var.intents: [for q in s.questions: {"sampleValue": {"value": q}, "synonyms": null}]])  
+  slot_type_values = flatten([for s in var.intents : [for q in s.questions : { "sampleValue" : { "value" : q }, "synonyms" : null }]])
 }
 
 data "template_file" "slot_types" {
@@ -35,75 +35,75 @@ data "archive_file" "bot" {
 
   # content that is templated
   source {
-      content = data.template_file.bot_json.rendered
-      filename = "QnABot/Bot.json"
+    content  = data.template_file.bot_json.rendered
+    filename = "QnABot/Bot.json"
   }
   source {
-      content = data.template_file.slot_types.rendered
-      filename = "QnABot/BotLocales/en_US/SlotTypes/QnaSlotType/SlotType.json"
+    content  = data.template_file.slot_types.rendered
+    filename = "QnABot/BotLocales/en_US/SlotTypes/QnaSlotType/SlotType.json"
   }
 
 
   # content that is not templated
   source {
-      content = file("${path.module}/Manifest.json")
-      filename = "Manifest.json"   
+    content  = file("${path.module}/Manifest.json")
+    filename = "Manifest.json"
   }
   source {
-      content = file("${path.module}/QnABot/BotLocales/en_US/BotLocale.json")
-      filename = "QnABot/BotLocales/en_US/BotLocale.json"
+    content  = file("${path.module}/QnABot/BotLocales/en_US/BotLocale.json")
+    filename = "QnABot/BotLocales/en_US/BotLocale.json"
   }
   source {
-      content = file("${path.module}/QnABot/BotLocales/en_US/Intents/FallbackIntent/Intent.json")
-      filename = "QnABot/BotLocales/en_US/Intents/FallbackIntent/Intent.json"
+    content  = file("${path.module}/QnABot/BotLocales/en_US/Intents/FallbackIntent/Intent.json")
+    filename = "QnABot/BotLocales/en_US/Intents/FallbackIntent/Intent.json"
   }
   source {
-      content = file("${path.module}/QnABot/BotLocales/en_US/Intents/QnaIntent/Slots/qnaslot/Slot.json")
-      filename = "QnABot/BotLocales/en_US/Intents/QnaIntent/Slots/qnaslot/Slot.json"
+    content  = file("${path.module}/QnABot/BotLocales/en_US/Intents/QnaIntent/Slots/qnaslot/Slot.json")
+    filename = "QnABot/BotLocales/en_US/Intents/QnaIntent/Slots/qnaslot/Slot.json"
   }
   source {
-      content = file("${path.module}/QnABot/BotLocales/en_US/Intents/QnaIntent/Intent.json")
-      filename = "QnABot/BotLocales/en_US/Intents/QnaIntent/Intent.json"
+    content  = file("${path.module}/QnABot/BotLocales/en_US/Intents/QnaIntent/Intent.json")
+    filename = "QnABot/BotLocales/en_US/Intents/QnaIntent/Intent.json"
   }
   source {
-      content = file("${path.module}/QnABot/BotLocales/es_US/BotLocale.json")
-      filename = "QnABot/BotLocales/es_US/BotLocale.json"
+    content  = file("${path.module}/QnABot/BotLocales/es_US/BotLocale.json")
+    filename = "QnABot/BotLocales/es_US/BotLocale.json"
   }
   source {
-      content = file("${path.module}/QnABot/BotLocales/es_US/SlotTypes/QnaSlotType/SlotType.json")
-      filename = "QnABot/BotLocales/es_US/SlotTypes/QnaSlotType/SlotType.json"
+    content  = file("${path.module}/QnABot/BotLocales/es_US/SlotTypes/QnaSlotType/SlotType.json")
+    filename = "QnABot/BotLocales/es_US/SlotTypes/QnaSlotType/SlotType.json"
   }
   source {
-      content = file("${path.module}/QnABot/BotLocales/es_US/Intents/FallbackIntent/Intent.json")
-      filename = "QnABot/BotLocales/es_US/Intents/FallbackIntent/Intent.json"
+    content  = file("${path.module}/QnABot/BotLocales/es_US/Intents/FallbackIntent/Intent.json")
+    filename = "QnABot/BotLocales/es_US/Intents/FallbackIntent/Intent.json"
   }
   source {
-      content = file("${path.module}/QnABot/BotLocales/es_US/Intents/QnaIntent/Slots/qnaslot/Slot.json")
-      filename = "QnABot/BotLocales/es_US/Intents/QnaIntent/Slots/qnaslot/Slot.json"
+    content  = file("${path.module}/QnABot/BotLocales/es_US/Intents/QnaIntent/Slots/qnaslot/Slot.json")
+    filename = "QnABot/BotLocales/es_US/Intents/QnaIntent/Slots/qnaslot/Slot.json"
   }
   source {
-      content = file("${path.module}/QnABot/BotLocales/es_US/Intents/QnaIntent/Intent.json")
-      filename = "QnABot/BotLocales/es_US/Intents/QnaIntent/Intent.json"
+    content  = file("${path.module}/QnABot/BotLocales/es_US/Intents/QnaIntent/Intent.json")
+    filename = "QnABot/BotLocales/es_US/Intents/QnaIntent/Intent.json"
   }
   source {
-      content = file("${path.module}/QnABot/BotLocales/fr_CA/BotLocale.json")
-      filename = "QnABot/BotLocales/fr_CA/BotLocale.json"
+    content  = file("${path.module}/QnABot/BotLocales/fr_CA/BotLocale.json")
+    filename = "QnABot/BotLocales/fr_CA/BotLocale.json"
   }
   source {
-      content = file("${path.module}/QnABot/BotLocales/fr_CA/SlotTypes/QnaSlotType/SlotType.json")
-      filename = "QnABot/BotLocales/fr_CA/SlotTypes/QnaSlotType/SlotType.json"
+    content  = file("${path.module}/QnABot/BotLocales/fr_CA/SlotTypes/QnaSlotType/SlotType.json")
+    filename = "QnABot/BotLocales/fr_CA/SlotTypes/QnaSlotType/SlotType.json"
   }
   source {
-      content = file("${path.module}/QnABot/BotLocales/fr_CA/Intents/FallbackIntent/Intent.json")
-      filename = "QnABot/BotLocales/fr_CA/Intents/FallbackIntent/Intent.json"
+    content  = file("${path.module}/QnABot/BotLocales/fr_CA/Intents/FallbackIntent/Intent.json")
+    filename = "QnABot/BotLocales/fr_CA/Intents/FallbackIntent/Intent.json"
   }
   source {
-      content = file("${path.module}/QnABot/BotLocales/fr_CA/Intents/QnaIntent/Slots/qnaslot/Slot.json")
-      filename = "QnABot/BotLocales/fr_CA/Intents/QnaIntent/Slots/qnaslot/Slot.json"
+    content  = file("${path.module}/QnABot/BotLocales/fr_CA/Intents/QnaIntent/Slots/qnaslot/Slot.json")
+    filename = "QnABot/BotLocales/fr_CA/Intents/QnaIntent/Slots/qnaslot/Slot.json"
   }
   source {
-      content = file("${path.module}/QnABot/BotLocales/fr_CA/Intents/QnaIntent/Intent.json")
-      filename = "QnABot/BotLocales/fr_CA/Intents/QnaIntent/Intent.json"
+    content  = file("${path.module}/QnABot/BotLocales/fr_CA/Intents/QnaIntent/Intent.json")
+    filename = "QnABot/BotLocales/fr_CA/Intents/QnaIntent/Intent.json"
   }
 }
 

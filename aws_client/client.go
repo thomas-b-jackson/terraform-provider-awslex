@@ -31,6 +31,7 @@ type AwsClient struct {
 
 func NewClient() (*AwsClient, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
+
 	if err != nil {
 		return nil, err
 	}

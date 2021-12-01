@@ -1,9 +1,16 @@
 terraform {
   required_providers {
+    # for testing versions existing locally
     awslex = {
       version = "0.1"
       source  = "thomas-b-jackson/va/awslex"
     }
+
+    # for testing against a release in the hashi registry
+    # awslex = {
+    #   source = "thomas-b-jackson/awslex"
+    #   version = "0.2.0-alpha"
+    # }
   }
 }
 

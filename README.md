@@ -54,11 +54,14 @@ Create a release using GoReleaser.
 
 Setup Steps:
 * Install GoReleaser
-* Install GPG private key for signing (key currently controlled by Tom Jackson)
+* Obtain fingerprint of GPG private key for signing (key currently controlled by Tom Jackson)
+  * fingerprint is 40 chars and is obtained by running this command:
+    `gpg --list-secret-keys --keyid-format=long`
 * Obtain Personal Access Token for repo (token currently controlled by Tom Jackson)
 
 Release Steps:
 * Set GITHUB_TOKEN to a Personal Access Token
+* Set GPG_FINGERPRINT to fingerprint
 * Tag your release commit to match version in GNUmakefile, e.g.:
   `git tag v0.2.0`
 * Build, sign, and upload your release with:

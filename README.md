@@ -6,6 +6,7 @@ Provider for building aws lexv2 bots via terraform
 
 -	[Terraform](https://www.terraform.io/downloads.html) >= 0.13.x
 -	[Go](https://golang.org/doc/install) >= 1.15
+-   [GoReleaser](https://goreleaser.com/)
 
 ## Building The Provider
 
@@ -47,6 +48,18 @@ $ make test
 
 ## Release
 
-Create a release using goreleaser, [per these instructions](https://www.terraform.io/docs/registry/providers/publishing.html#using-goreleaser-locally)
+Create a release using GoReleaser. 
 
-Note: the `.goreleaser.yml` file is in the root of the repository, so it does not need to be recreated.
+**Note:** steps are adapted from [these instructions](https://www.terraform.io/docs/registry/providers/publishing.html#using-goreleaser-locally)
+
+Setup Steps:
+* Install GoReleaser
+* Install GPG private key for signing (key currently controlled by Tom Jackson)
+* Obtain Personal Access Token for repo (token currently controlled by Tom Jackson)
+
+Release Steps:
+* Set GITHUB_TOKEN to a Personal Access Token
+* Tag your release commit to match version in GNUmakefile, e.g.:
+  `git tag v0.2.0`
+* Build, sign, and upload your release with:
+  `goreleaser release --rm-dist`

@@ -18,6 +18,7 @@ provider "aws" {
 data "aws_caller_identity" "current" {}
 
 locals {
+  bot_name = "TerraBot"
   bot_description      = "Terraform Bot"
   lambda_version       = 1
   lambda_arn           = "arn:aws:lambda:us-west-2:580753938011:function:QnABot-FulfillmentLambda-iGXdhe8RHdyH"
@@ -31,6 +32,7 @@ locals {
 module "bot_sources" {
   source          = "./sources"
   bot_description = local.bot_description
+  bot_name = local.bot_name
   intents = [
     {
       id = "gas-leak"
@@ -65,7 +67,7 @@ module "bot_sources" {
 resource "awslex_bot_resource" "socal_gas_qnabot" {
 
   depends_on = [module.bot_sources]
-  name       = "TerraBot"
+  name       = local.bot_name
 
   description = local.bot_description
 

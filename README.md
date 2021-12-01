@@ -49,4 +49,4 @@ $ make test
 
 Create a release using goreleaser, [per these instructions](https://www.terraform.io/docs/registry/providers/publishing.html#using-goreleaser-locally)
 
-Note: the .goreleaser.yml file is in the root of the repository, so it does not need to be recreated.
+Note: the `.goreleaser.yml` file is in the root of the repository, so it does not need to be recreated.

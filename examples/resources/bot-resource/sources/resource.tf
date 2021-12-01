@@ -36,11 +36,11 @@ data "archive_file" "bot" {
   # content that is templated
   source {
     content  = data.template_file.bot_json.rendered
-    filename = "QnABot/Bot.json"
+    filename = "TerraBot/Bot.json"
   }
   source {
     content  = data.template_file.slot_types.rendered
-    filename = "QnABot/BotLocales/en_US/SlotTypes/QnaSlotType/SlotType.json"
+    filename = "TerraBot/BotLocales/en_US/SlotTypes/QnaSlotType/SlotType.json"
   }
 
 
@@ -51,59 +51,59 @@ data "archive_file" "bot" {
   }
   source {
     content  = file("${path.module}/QnABot/BotLocales/en_US/BotLocale.json")
-    filename = "QnABot/BotLocales/en_US/BotLocale.json"
+    filename = "TerraBot/BotLocales/en_US/BotLocale.json"
   }
   source {
     content  = file("${path.module}/QnABot/BotLocales/en_US/Intents/FallbackIntent/Intent.json")
-    filename = "QnABot/BotLocales/en_US/Intents/FallbackIntent/Intent.json"
+    filename = "TerraBot/BotLocales/en_US/Intents/FallbackIntent/Intent.json"
   }
   source {
     content  = file("${path.module}/QnABot/BotLocales/en_US/Intents/QnaIntent/Slots/qnaslot/Slot.json")
-    filename = "QnABot/BotLocales/en_US/Intents/QnaIntent/Slots/qnaslot/Slot.json"
+    filename = "TerraBot/BotLocales/en_US/Intents/QnaIntent/Slots/qnaslot/Slot.json"
   }
   source {
     content  = file("${path.module}/QnABot/BotLocales/en_US/Intents/QnaIntent/Intent.json")
-    filename = "QnABot/BotLocales/en_US/Intents/QnaIntent/Intent.json"
+    filename = "TerraBot/BotLocales/en_US/Intents/QnaIntent/Intent.json"
   }
   source {
     content  = file("${path.module}/QnABot/BotLocales/es_US/BotLocale.json")
-    filename = "QnABot/BotLocales/es_US/BotLocale.json"
+    filename = "TerraBot/BotLocales/es_US/BotLocale.json"
   }
   source {
     content  = file("${path.module}/QnABot/BotLocales/es_US/SlotTypes/QnaSlotType/SlotType.json")
-    filename = "QnABot/BotLocales/es_US/SlotTypes/QnaSlotType/SlotType.json"
+    filename = "TerraBot/BotLocales/es_US/SlotTypes/QnaSlotType/SlotType.json"
   }
   source {
     content  = file("${path.module}/QnABot/BotLocales/es_US/Intents/FallbackIntent/Intent.json")
-    filename = "QnABot/BotLocales/es_US/Intents/FallbackIntent/Intent.json"
+    filename = "TerraBot/BotLocales/es_US/Intents/FallbackIntent/Intent.json"
   }
   source {
     content  = file("${path.module}/QnABot/BotLocales/es_US/Intents/QnaIntent/Slots/qnaslot/Slot.json")
-    filename = "QnABot/BotLocales/es_US/Intents/QnaIntent/Slots/qnaslot/Slot.json"
+    filename = "TerraBot/BotLocales/es_US/Intents/QnaIntent/Slots/qnaslot/Slot.json"
   }
   source {
     content  = file("${path.module}/QnABot/BotLocales/es_US/Intents/QnaIntent/Intent.json")
-    filename = "QnABot/BotLocales/es_US/Intents/QnaIntent/Intent.json"
+    filename = "TerraBot/BotLocales/es_US/Intents/QnaIntent/Intent.json"
   }
   source {
     content  = file("${path.module}/QnABot/BotLocales/fr_CA/BotLocale.json")
-    filename = "QnABot/BotLocales/fr_CA/BotLocale.json"
+    filename = "TerraBot/BotLocales/fr_CA/BotLocale.json"
   }
   source {
     content  = file("${path.module}/QnABot/BotLocales/fr_CA/SlotTypes/QnaSlotType/SlotType.json")
-    filename = "QnABot/BotLocales/fr_CA/SlotTypes/QnaSlotType/SlotType.json"
+    filename = "TerraBot/BotLocales/fr_CA/SlotTypes/QnaSlotType/SlotType.json"
   }
   source {
     content  = file("${path.module}/QnABot/BotLocales/fr_CA/Intents/FallbackIntent/Intent.json")
-    filename = "QnABot/BotLocales/fr_CA/Intents/FallbackIntent/Intent.json"
+    filename = "TerraBot/BotLocales/fr_CA/Intents/FallbackIntent/Intent.json"
   }
   source {
     content  = file("${path.module}/QnABot/BotLocales/fr_CA/Intents/QnaIntent/Slots/qnaslot/Slot.json")
-    filename = "QnABot/BotLocales/fr_CA/Intents/QnaIntent/Slots/qnaslot/Slot.json"
+    filename = "TerraBot/BotLocales/fr_CA/Intents/QnaIntent/Slots/qnaslot/Slot.json"
   }
   source {
     content  = file("${path.module}/QnABot/BotLocales/fr_CA/Intents/QnaIntent/Intent.json")
-    filename = "QnABot/BotLocales/fr_CA/Intents/QnaIntent/Intent.json"
+    filename = "TerraBot/BotLocales/fr_CA/Intents/QnaIntent/Intent.json"
   }
 }
 

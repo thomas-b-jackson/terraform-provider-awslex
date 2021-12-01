@@ -17,6 +17,7 @@ func TestGetBot(t *testing.T) {
 		// outputs from the lexmodelsv2.DescribeBot API call
 		DescribeBotOutput: lexmodelsv2.DescribeBotOutput{
 			BotName: &botName,
+			RoleArn: getAddr("some-arn"),
 		},
 		// outputs from the lexmodelsv2.ListBotAlias API call
 		ListBotAliasesOutput: lexmodelsv2.ListBotAliasesOutput{
@@ -24,17 +25,23 @@ func TestGetBot(t *testing.T) {
 				{
 					BotAliasId:   getAddr("some-other-id"),
 					BotAliasName: getAddr("some-other-alias"),
+					BotVersion:   getAddr("some-other-version"),
 				},
 				{
 					BotAliasId:   &aliasId,
 					BotAliasName: &aliasName,
+					BotVersion:   getAddr("some-version"),
 				},
 				{
 					BotAliasId:   getAddr("some-some-other-id"),
 					BotAliasName: getAddr("some-some-other-alias"),
+					BotVersion:   getAddr("some-some-other-version"),
 				},
 			},
 			BotId: getAddr("testing"),
+		},
+		DescribeBotVersionOutput: lexmodelsv2.DescribeBotVersionOutput{
+			Description: getAddr("some-description"),
 		},
 		// no error (i.e. happy path
 		err: nil,

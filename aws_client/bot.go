@@ -60,12 +60,14 @@ func (c *AwsClient) GetBot(botId string, alias string) (LexBot, error) {
 
 	for _, botAlias := range botAlias.BotAliasSummaries {
 		if *botAlias.BotAliasName == alias {
+
 			bot.Id = botId
 			bot.Alias = *botAlias.BotAliasName
 			bot.AliasId = *botAlias.BotAliasId
-			bot.Version = *botAlias.BotVersion
-
-			log.Printf("[DEBUG] params pulled from alias, requested alias: %s, actual alias: %s, version: %s\n", alias, *botAlias.BotAliasName, bot.Version)
+			// not all aliases have a version
+			if botAlias.BotVersion != nil {
+				bot.Version = *botAlias.BotVersion
+			}
 		}
 	}
 

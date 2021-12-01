@@ -2,13 +2,13 @@ terraform {
   required_providers {
     awslex = {
       version = "0.1"
-      source  = "scg.com/va/awslex"
+      source  = "thomas-b-jackson/va/awslex"
     }
   }
 }
 
 provider "awslex" {
-  // region = "us-west-2"
+  region = "us-west-2"
 }
 
 provider "aws" {

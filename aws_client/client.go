@@ -29,8 +29,11 @@ type AwsClient struct {
 	Client BotClient
 }
 
-func NewClient() (*AwsClient, error) {
-	cfg, err := config.LoadDefaultConfig(context.TODO())
+func NewClient(region string) (*AwsClient, error) {
+
+	// hardcode the region for now
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion(region))
 
 	if err != nil {
 		return nil, err

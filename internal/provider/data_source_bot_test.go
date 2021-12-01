@@ -11,8 +11,8 @@ func TestAccDataSourceBot(t *testing.T) {
 	// t.Skip("data source not yet implemented, remove this once you add your own code")
 
 	resource.UnitTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: providerFactories,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: providerFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceBot,
@@ -26,8 +26,12 @@ func TestAccDataSourceBot(t *testing.T) {
 }
 
 const testAccDataSourceBot = `
+provider "awslex" {
+  region = "us-west-2"
+}
+
 data "awslex_bot_resource" "foo" {
   id = "QU1ORIZZTP"
-  version = "version7"
+  alias = "alias1"
 }
 `

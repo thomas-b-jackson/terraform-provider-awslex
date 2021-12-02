@@ -67,5 +67,6 @@ Release Steps:
   `git tag 0.2.0`
 * Build, sign, and upload your release with:
   `goreleaser release --rm-dist`
-* Test the released provider
+* Re-run terraform init against the release in the registry (to make sure it has sync'd from github)
+* Test the released provider in a pipeline
 * Push commit and do pull request

@@ -1,16 +1,16 @@
 terraform {
   required_providers {
     # for testing versions existing locally
-    awslex = {
-      version = "0.2.0-beta1"
-      source  = "thomas-b-jackson/va/awslex"
-    }
+    # awslex = {
+    #   version = "0.2.0-beta1"
+    #   source  = "thomas-b-jackson/va/awslex"
+    # }
 
     # for testing against a release in the hashi registry
-    # awslex = {
-    #   source = "thomas-b-jackson/awslex"
-    #   version = "0.2.0-beta"
-    # }
+    awslex = {
+      source = "thomas-b-jackson/awslex"
+      version = "0.2.0-beta1"
+    }
   }
 }
 
@@ -33,8 +33,8 @@ locals {
   lambda_arn           = "arn:aws:lambda:us-west-2:580753938011:function:QnABot-FulfillmentLambda-iGXdhe8RHdyH"
   lambda_versioned_arn = "${local.lambda_arn}:${local.lambda_version}"
   account_id           = data.aws_caller_identity.current.account_id
-  bot_id               = resource.awslex_bot_resource.socal_gas_qnabot.id
-  bot_alias_id         = resource.awslex_bot_resource.socal_gas_qnabot.alias_id
+  bot_id               = awslex_bot_resource.socal_gas_qnabot.id
+  bot_alias_id         = awslex_bot_resource.socal_gas_qnabot.alias_id
 }
 
 # create the file that represents the Lex bot sources
@@ -102,7 +102,7 @@ resource "awslex_bot_resource" "socal_gas_qnabot" {
 // give the all aliases associated with this bot permission to invoke the lambda
 resource "aws_lambda_permission" "bot_permission" {
 
-  depends_on = [resource.awslex_bot_resource.socal_gas_qnabot]
+  depends_on = [awslex_bot_resource.socal_gas_qnabot]
 
   statement_id  = "AllowExecutionFromBotAlias"
   action        = "lambda:InvokeFunction"
@@ -113,6 +113,6 @@ resource "aws_lambda_permission" "bot_permission" {
 }
 
 output "test_suggestion" {
-  depends_on = [resource.awslex_bot_resource.socal_gas_qnabot]
-  value      = "aws lexv2-runtime recognize-text --bot-id '${local.bot_id}' --bot-alias-id '${resource.awslex_bot_resource.socal_gas_qnabot.alias_id}' --locale-id 'en_US' --session-id 'test_session' --text 'forgot password'"
+  depends_on = [awslex_bot_resource.socal_gas_qnabot]
+  value      = "aws lexv2-runtime recognize-text --bot-id '${local.bot_id}' --bot-alias-id '${awslex_bot_resource.socal_gas_qnabot.alias_id}' --locale-id 'en_US' --session-id 'test_session' --text 'forgot password'"
 }

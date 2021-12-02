@@ -8,11 +8,11 @@ import (
 )
 
 func TestAccResourceSkills(t *testing.T) {
-	// t.Skip("resource not yet implemented, remove this once you add your own code")
+	t.Skip("resource not yet implemented, remove this once you add your own code")
 
 	resource.UnitTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: providerFactories,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: providerFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceSkills,

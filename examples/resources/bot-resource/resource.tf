@@ -1,14 +1,23 @@
 terraform {
   required_providers {
+    # for testing versions existing locally
+    # awslex = {
+    #   version = "0.2.0-beta1"
+    #   source  = "thomas-b-jackson/va/awslex"
+    # }
+
+    # for testing against a release in the hashi registry
     awslex = {
-      version = "0.1"
-      source  = "scg.com/va/awslex"
+      source = "thomas-b-jackson/awslex"
+      version = "0.2.0-beta1"
     }
   }
 }
 
 provider "awslex" {
-  // region = "us-west-2"
+  region = "us-west-2"
+  // this should error out when testing locally
+  // role_arn = "arn:aws:iam::123456789012:role/awslex-role"
 }
 
 provider "aws" {
@@ -18,54 +27,56 @@ provider "aws" {
 data "aws_caller_identity" "current" {}
 
 locals {
-  bot_description = "Terraform Bot"
-  lambda_version = 1
-  lambda_arn = "arn:aws:lambda:us-west-2:580753938011:function:QnABot-FulfillmentLambda-iGXdhe8RHdyH"
+  bot_name = "TerraBot"
+  bot_description      = "Terraform Bot"
+  lambda_version       = 1
+  lambda_arn           = "arn:aws:lambda:us-west-2:580753938011:function:QnABot-FulfillmentLambda-iGXdhe8RHdyH"
   lambda_versioned_arn = "${local.lambda_arn}:${local.lambda_version}"
-  account_id = data.aws_caller_identity.current.account_id
-  bot_id = resource.awslex_bot_resource.socal_gas_qnabot.id
-  bot_alias_id = resource.awslex_bot_resource.socal_gas_qnabot.alias_id
-}  
+  account_id           = data.aws_caller_identity.current.account_id
+  bot_id               = awslex_bot_resource.socal_gas_qnabot.id
+  bot_alias_id         = awslex_bot_resource.socal_gas_qnabot.alias_id
+}
 
 # create the file that represents the Lex bot sources
 module "bot_sources" {
-  source = "./sources"
+  source          = "./sources"
   bot_description = local.bot_description
+  bot_name = local.bot_name
   intents = [
-    {   
-        id = "gas-leak"
-        questions = ["I smell gas in my house. What should I do?",
-                    "help my gas is leaking",
-                    "smell garlic in my home and I'm not cooking",
-                    "emergency gas leak"]
+    {
+      id = "gas-leak"
+      questions = ["I smell gas in my house. What should I do?",
+        "help my gas is leaking",
+        "smell garlic in my home and I'm not cooking",
+      "emergency gas leak"]
 
-        answer = "For Gas Emergencies or Safety Issues call Emergencies: 911 For general safety issues: 1-800-427-2200"
+      answer = "For Gas Emergencies or Safety Issues call Emergencies: 911 For general safety issues: 1-800-427-2200"
     },
     {
-        id = "password-reset"
-        questions = ["how do I reset my password",
-                    "I forgot my password",
-                    "Can't remember my password",
-                    "My login does not work"]
+      id = "password-reset"
+      questions = ["how do I reset my password",
+        "I forgot my password",
+        "Can't remember my password",
+      "My login does not work"]
 
-        answer = "If you forgot your My Account password, securely reset it with an authorization code that is sent to your cellphone number on your My Account profile."
+      answer = "If you forgot your My Account password, securely reset it with an authorization code that is sent to your cellphone number on your My Account profile."
     },
     {
-        id = "pilot-light"
-        questions = ["what should i do if my pilot light is out?",
-                    "pilot light",
-                    "help with pilot light on furnace",
-                    "pilot light on furnace"]
+      id = "pilot-light"
+      questions = ["what should i do if my pilot light is out?",
+        "pilot light",
+        "help with pilot light on furnace",
+      "pilot light on furnace"]
 
-        answer = "If you have a gas water heater or gas furnace that is not working, the pilot light on the heater may have accidentally become extinguished. For assistance relighting the pilot light, consult the water heater or furnace owner’s manual or contact Southern California Gas Company (SoCalGas®) and schedule an appliance appointment."
-    }    
+      answer = "If you have a gas water heater or gas furnace that is not working, the pilot light on the heater may have accidentally become extinguished. For assistance relighting the pilot light, consult the water heater or furnace owner’s manual or contact Southern California Gas Company (SoCalGas®) and schedule an appliance appointment."
+    }
   ]
 }
 
 resource "awslex_bot_resource" "socal_gas_qnabot" {
 
   depends_on = [module.bot_sources]
-  name = "TerraBot"
+  name       = local.bot_name
 
   description = local.bot_description
 
@@ -91,7 +102,7 @@ resource "awslex_bot_resource" "socal_gas_qnabot" {
 // give the all aliases associated with this bot permission to invoke the lambda
 resource "aws_lambda_permission" "bot_permission" {
 
-  depends_on = [resource.awslex_bot_resource.socal_gas_qnabot]
+  depends_on = [awslex_bot_resource.socal_gas_qnabot]
 
   statement_id  = "AllowExecutionFromBotAlias"
   action        = "lambda:InvokeFunction"
@@ -102,6 +113,6 @@ resource "aws_lambda_permission" "bot_permission" {
 }
 
 output "test_suggestion" {
-  depends_on = [resource.awslex_bot_resource.socal_gas_qnabot]
-  value = "aws lexv2-runtime recognize-text --bot-id '${local.bot_id}' --bot-alias-id '${resource.awslex_bot_resource.socal_gas_qnabot.alias_id}' --locale-id 'en_US' --session-id 'test_session' --text 'forgot password'"
+  depends_on = [awslex_bot_resource.socal_gas_qnabot]
+  value      = "aws lexv2-runtime recognize-text --bot-id '${local.bot_id}' --bot-alias-id '${awslex_bot_resource.socal_gas_qnabot.alias_id}' --locale-id 'en_US' --session-id 'test_session' --text 'forgot password'"
 }

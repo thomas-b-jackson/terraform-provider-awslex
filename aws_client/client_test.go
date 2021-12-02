@@ -17,10 +17,11 @@ func NewTestClient(client BotClient) (*AwsClient, error) {
 type MockBotClient struct {
 	BotClient
 	// each test should specify the expected output and error
-	DescribeBotOutput      lexmodelsv2.DescribeBotOutput
-	ListBotAliasesOutput   lexmodelsv2.ListBotAliasesOutput
-	DescribeBotAliasOutput lexmodelsv2.DescribeBotAliasOutput
-	err                    error
+	DescribeBotOutput        lexmodelsv2.DescribeBotOutput
+	ListBotAliasesOutput     lexmodelsv2.ListBotAliasesOutput
+	DescribeBotAliasOutput   lexmodelsv2.DescribeBotAliasOutput
+	DescribeBotVersionOutput lexmodelsv2.DescribeBotVersionOutput
+	err                      error
 }
 
 func (m MockBotClient) ListBotAliases(ctx context.Context, params *lexmodelsv2.ListBotAliasesInput, optFns ...func(*lexmodelsv2.Options)) (*lexmodelsv2.ListBotAliasesOutput, error) {
@@ -31,4 +32,8 @@ func (m MockBotClient) DescribeBotAlias(ctx context.Context, params *lexmodelsv2
 }
 func (m MockBotClient) DescribeBot(ctx context.Context, params *lexmodelsv2.DescribeBotInput, optFns ...func(*lexmodelsv2.Options)) (*lexmodelsv2.DescribeBotOutput, error) {
 	return &m.DescribeBotOutput, m.err
+}
+
+func (m MockBotClient) DescribeBotVersion(ctx context.Context, params *lexmodelsv2.DescribeBotVersionInput, optFns ...func(*lexmodelsv2.Options)) (*lexmodelsv2.DescribeBotVersionOutput, error) {
+	return &m.DescribeBotVersionOutput, m.err
 }

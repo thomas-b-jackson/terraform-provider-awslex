@@ -2,9 +2,13 @@ package aws_client
 
 import (
 	"context"
+	"log"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"github.com/aws/aws-sdk-go-v2/service/lexmodelsv2"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
 
 type BotClient interface {
@@ -29,15 +33,35 @@ type AwsClient struct {
 	Client BotClient
 }
 
-func NewClient() (*AwsClient, error) {
-	cfg, err := config.LoadDefaultConfig(context.TODO())
+func NewClient(region string, roleArn string) (*AwsClient, error) {
+
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion(region))
+
 	if err != nil {
 		return nil, err
 	}
 
-	client := lexmodelsv2.NewFromConfig(cfg)
+	var awsClient AwsClient
 
-	c := AwsClient{client}
+	if roleArn == "" {
 
-	return &c, nil
+		// assume credentials available in the ~/.aws/credentials file
+		client := lexmodelsv2.NewFromConfig(cfg)
+		awsClient = AwsClient{client}
+
+	} else {
+
+		log.Printf("[DEBUG] auth using role arn: %s\n", roleArn)
+
+		// create temporary credentials from the iam role
+		stsSvc := sts.NewFromConfig(cfg)
+		creds := stscreds.NewAssumeRoleProvider(stsSvc, roleArn)
+		cfg.Credentials = aws.NewCredentialsCache(creds)
+		client := lexmodelsv2.NewFromConfig(cfg)
+
+		awsClient = AwsClient{client}
+	}
+
+	return &awsClient, nil
 }

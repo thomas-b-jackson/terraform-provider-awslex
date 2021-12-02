@@ -2,9 +2,13 @@ terraform {
   required_providers {
     awslex = {
       version = "0.1"
-      source  = "scg.com/va/awslex"
+      source  = "thomas-b-jackson/va/awslex"
     }
   }
+}
+
+provider "awslex" {
+  region = "us-west-2"
 }
 
 data "awslex_bot_resource" "socal_gas_qnabot" {
@@ -16,5 +20,5 @@ data "awslex_bot_resource" "socal_gas_qnabot" {
 }
 
 output "bot" {
-  value = "${data.awslex_bot_resource.socal_gas_qnabot}"
+  value = data.awslex_bot_resource.socal_gas_qnabot
 }

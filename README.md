@@ -60,9 +60,12 @@ Setup Steps:
 * Obtain Personal Access Token for repo (token currently controlled by Tom Jackson)
 
 Release Steps:
+* Commit changes locally
 * Set GITHUB_TOKEN to a Personal Access Token
 * Set GPG_FINGERPRINT to fingerprint
 * Tag your release commit to match version in GNUmakefile, e.g.:
-  `git tag v0.2.0`
+  `git tag 0.2.0`
 * Build, sign, and upload your release with:
   `goreleaser release --rm-dist`
+* Test the released provider
+* Push commit and do pull request

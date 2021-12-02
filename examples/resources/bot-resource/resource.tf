@@ -2,20 +2,22 @@ terraform {
   required_providers {
     # for testing versions existing locally
     awslex = {
-      version = "0.1"
+      version = "0.2.0-beta1"
       source  = "thomas-b-jackson/va/awslex"
     }
 
     # for testing against a release in the hashi registry
     # awslex = {
     #   source = "thomas-b-jackson/awslex"
-    #   version = "0.2.0-alpha"
+    #   version = "0.2.0-beta"
     # }
   }
 }
 
 provider "awslex" {
   region = "us-west-2"
+  // this should error out when testing locally
+  // role_arn = "arn:aws:iam::123456789012:role/awslex-role"
 }
 
 provider "aws" {

@@ -22,6 +22,10 @@ func Provider(version string) *schema.Provider {
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("AWS_DEFAULT_REGION", nil),
 			},
+			"role_arn": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"awslex_bot_resource": dataSourceBot(),
@@ -38,8 +42,9 @@ func configure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.D
 	var diags diag.Diagnostics
 
 	region := d.Get("region").(string)
+	role_arn := d.Get("role_arn").(string)
 
-	askClient, err := aws_client.NewClient(region)
+	askClient, err := aws_client.NewClient(region, role_arn)
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,

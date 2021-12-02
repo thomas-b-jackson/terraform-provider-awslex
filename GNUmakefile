@@ -3,7 +3,7 @@ HOSTNAME= thomas-b-jackson
 NAMESPACE=va
 NAME=awslex
 BINARY=terraform-provider-${NAME}
-VERSION=0.2
+VERSION=0.2.0-beta1
 OS_ARCH=linux_amd64
 
 default: install

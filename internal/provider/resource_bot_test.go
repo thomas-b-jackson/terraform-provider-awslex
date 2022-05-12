@@ -8,7 +8,7 @@ import (
 )
 
 func TestAccResourceSkills(t *testing.T) {
-	t.Skip("resource not yet implemented, remove this once you add your own code")
+	t.Skip("TODO: test not yet working")
 
 	resource.UnitTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -18,7 +18,7 @@ func TestAccResourceSkills(t *testing.T) {
 				Config: testAccResourceSkills,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr(
-						"alexaskills_skill_resource.foo", "id", regexp.MustCompile("amzn1.ask.skill.*")),
+						"awslex_bot_resource.foo", "id", regexp.MustCompile("TBD.*")),
 				),
 			},
 		},
@@ -26,33 +26,39 @@ func TestAccResourceSkills(t *testing.T) {
 }
 
 const testAccResourceSkills = `
-resource "awslex_bot_resource" "foo" {
-	manifest {
-		manifest_version = "1.0"
+provider "awslex" {
+  region = "us-west-2"
+}
 
-		publishing_information {
-			locales {
-				en_us {
-					summary         = "Sample Short Description"
-					example_phrases = ["alexa open hello world", "hello", "help"]
-					name            = "TestAccResourceSkills"
-					description     = "Sample Full Description"
-				}
-			}
-		
-			is_available_worldwide = true
-			testing_instructions   = "Sample Testing Instructions."
-			category               = "KNOWLEDGE_AND_TRIVIA"
-			distribution_countries = []
-		}
-		apis {
-			custom {
-				endpoint {
-					uri = "arn:aws:lambda:us-west-2:580753938011:function:serverlessrepo-alexa-skil-alexaskillskitnodejsfact-pymFhOcUAodv"
-				}
-				interfaces = []
-			}
-		}
-	}
+resource "awslex_bot_resource" "socal_gas_qnabot" {
+
+  name       = "integration-bot"
+
+  description = "bot created by integration tests"
+
+  # path to the bot sources zip file, in bot import/export format
+	# TODO: determine what path to use here
+  archive_path = "TBD"
+
+  # detect changes to the bot sources and update the bot
+  source_code_hash = "TBD"
+
+  # version of the bot
+  alias = "latest"
+
+  # arn of the lambda that fulfills the bot intents
+  lambda_arn = "arn:aws:lambda:us-west-2:111365482541:function:scg-geeou-dev-wus2-lambda-fulfillment-dev"
+
+  iam_role = "arn:aws:iam::111365482541:role/scg-lexbot-dev-wus2-iam-role-qnabot-dev"
+
+  tags = {
+    name                = "scg-shcva Virtual Assistant"
+    tag-version         = "1.0.0"
+    unit                = "shcva"
+    portfolio           = "geeou"
+    support-group       = "SCGMA Team"
+    cmdb-ci-id          = "7777777"
+    data-classification = "testing"
+  }
 }
 `

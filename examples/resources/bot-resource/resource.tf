@@ -1,16 +1,16 @@
 terraform {
   required_providers {
     # for testing versions existing locally
-    # awslex = {
-    #   version = "0.2.0-beta1"
-    #   source  = "thomas-b-jackson/va/awslex"
-    # }
-
-    # for testing against a release in the hashi registry
     awslex = {
-      source = "thomas-b-jackson/awslex"
-      version = "0.2.0-beta1"
+      source  = "localhost/va/awslex"
+      version = "0.2.0-beta3"
     }
+
+    # for testing against a release in the tfc private registry
+    # awslex = {
+    #   source = "app.terraform.io/SempraUtilities/awslex"
+    #   version = "0.2.0-beta3"
+    # }
   }
 }
 
@@ -29,9 +29,7 @@ data "aws_caller_identity" "current" {}
 locals {
   bot_name = "TerraBot"
   bot_description      = "Terraform Bot"
-  lambda_version       = 1
-  lambda_arn           = "arn:aws:lambda:us-west-2:580753938011:function:QnABot-FulfillmentLambda-iGXdhe8RHdyH"
-  lambda_versioned_arn = "${local.lambda_arn}:${local.lambda_version}"
+  lambda_arn           = "arn:aws:lambda:us-west-2:111365482541:function:scg-geeou-dev-wus2-lambda-fulfillment-dev"
   account_id           = data.aws_caller_identity.current.account_id
   bot_id               = awslex_bot_resource.socal_gas_qnabot.id
   bot_alias_id         = awslex_bot_resource.socal_gas_qnabot.alias_id
@@ -60,15 +58,6 @@ module "bot_sources" {
       "My login does not work"]
 
       answer = "If you forgot your My Account password, securely reset it with an authorization code that is sent to your cellphone number on your My Account profile."
-    },
-    {
-      id = "pilot-light"
-      questions = ["what should i do if my pilot light is out?",
-        "pilot light",
-        "help with pilot light on furnace",
-      "pilot light on furnace"]
-
-      answer = "If you have a gas water heater or gas furnace that is not working, the pilot light on the heater may have accidentally become extinguished. For assistance relighting the pilot light, consult the water heater or furnace owner’s manual or contact Southern California Gas Company (SoCalGas®) and schedule an appliance appointment."
     }
   ]
 }
@@ -87,16 +76,22 @@ resource "awslex_bot_resource" "socal_gas_qnabot" {
   source_code_hash = module.bot_sources.archive_sha
 
   # version of the bot
-  # note: version variable should be set to Build.SourceBranch for feature 
-  #   branch pipelines, and set to a specific release number on staging or 
-  #   prod pipelines
-  # note: this results in one, testable bot per feature branch
-  alias = "fix_gas-leaks"
+  alias = "latest"
 
   # arn of the lambda that fulfills the bot intents
-  lambda_arn = local.lambda_versioned_arn
+  lambda_arn = local.lambda_arn
 
-  iam_role = "arn:aws:iam::580753938011:role/aws-service-role/lexv2.amazonaws.com/AWSServiceRoleForLexV2Bots_1PKK306M5NW"
+  iam_role = "arn:aws:iam::111365482541:role/scg-lexbot-dev-wus2-iam-role-qnabot-dev"
+
+  tags = {
+    name                = "scg-shcva Virtual Assistant"
+    tag-version         = "1.0.0"
+    unit                = "shcva"
+    portfolio           = "geeou"
+    support-group       = "SCGMA Team"
+    cmdb-ci-id          = "7777777"
+    data-classification = "testing"
+  }
 }
 
 // give the all aliases associated with this bot permission to invoke the lambda
@@ -104,12 +99,11 @@ resource "aws_lambda_permission" "bot_permission" {
 
   depends_on = [awslex_bot_resource.socal_gas_qnabot]
 
-  statement_id  = "AllowExecutionFromBotAlias"
+  statement_id  = "AllowExecutionFromTerraBot"
   action        = "lambda:InvokeFunction"
   function_name = local.lambda_arn
   principal     = "lexv2.amazonaws.com"
   source_arn    = "arn:aws:lex:us-west-2:${local.account_id}:bot-alias/${local.bot_id}/*"
-  qualifier     = local.lambda_version
 }
 
 output "test_suggestion" {

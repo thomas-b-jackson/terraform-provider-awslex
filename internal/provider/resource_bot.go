@@ -72,6 +72,11 @@ func resourceBot() *schema.Resource {
 				Required:    true,
 				Description: "Description of bot",
 			},
+			"tags": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -88,6 +93,7 @@ func resourceBotCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 	bot.IamRoleArn = d.Get("iam_role").(string)
 	bot.ArchivePath = d.Get("archive_path").(string)
 	bot.SourceCodeHash = d.Get("source_code_hash").(string)
+	bot.Tags = convertTags(d.Get("tags").(map[string]interface{}))
 
 	awsClient := meta.(*aws_client.AwsClient)
 
@@ -110,6 +116,16 @@ func resourceBotCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 	return diags
 }
 
+func convertTags(tags map[string]interface{}) map[string]string {
+	result := map[string]string{}
+	for k := range tags {
+		if v, ok := tags[k].(string); ok {
+			result[k] = v
+		}
+	}
+	return result
+}
+
 func resourceBotRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	return dataSourceBotRead(ctx, d, meta)
@@ -130,10 +146,11 @@ func resourceBotUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 	bot.ArchivePath = d.Get("archive_path").(string)
 	bot.Version = d.Get("version").(string)
 	bot.SourceCodeHash = d.Get("source_code_hash").(string)
+	bot.Tags = convertTags(d.Get("tags").(map[string]interface{}))
 
 	awsClient := meta.(*aws_client.AwsClient)
 
-	err := awsClient.UpdateBot(&bot)
+	err := awsClient.UpdateBot(&bot, d)
 
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{

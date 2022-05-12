@@ -18,20 +18,21 @@ func TestAccDataSourceBot(t *testing.T) {
 				Config: testAccDataSourceBot,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr(
-						"data.awslex_bot_resource.foo", "id", regexp.MustCompile("QU1ORIZZTP")),
+						"data.awslex_bot_resource.foo", "id", regexp.MustCompile("C5H22UIPWC")),
 				),
 			},
 		},
 	})
 }
 
+// use id and alias from the stable dev bot
 const testAccDataSourceBot = `
 provider "awslex" {
   region = "us-west-2"
 }
 
 data "awslex_bot_resource" "foo" {
-  id = "QU1ORIZZTP"
-  alias = "alias1"
+  id = "C5H22UIPWC"
+  alias = "latest"
 }
 `

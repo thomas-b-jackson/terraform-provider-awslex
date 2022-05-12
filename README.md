@@ -4,31 +4,9 @@ Provider for building aws lexv2 bots via terraform
 
 ## Requirements
 
+- wsl or mac
 -	[Terraform](https://www.terraform.io/downloads.html) >= 0.13.x
 -	[Go](https://golang.org/doc/install) >= 1.15
--   [GoReleaser](https://goreleaser.com/)
-
-## Building The Provider
-
-1. Clone the repository
-2. Run the `install` target as: 
-```sh
-$ make install
-```
-
-## Adding Dependencies
-
-This provider uses [Go modules](https://github.com/golang/go/wiki/Modules).
-Please see the Go documentation for the most up to date information about using Go modules.
-
-To add a new dependency `github.com/author/dependency` to your Terraform provider:
-
-```
-go get github.com/author/dependency
-go mod tidy
-```
-
-Then commit the changes to `go.mod` and `go.sum`.
 
 ## Using the provider
 
@@ -36,15 +14,17 @@ See [./examples](./examples)
 
 ## Developing the Provider
 
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (per [Requirements](#requirements) above).
-
-In order to run the full suite of Acceptance tests, run `make testacc`.
-
-*Note:* Acceptance tests create real resources (and then clean them up after). So you'll need credentials to https://developer.amazon.com/ in order to run them.
-
-```sh
-$ make test
-```
+Development steps:
+1. update `VERSION` in `GNUMakefile` with the desired version tag
+2. set aws credentials (as env variables or via `.aws/credentials` file)
+3. make changes to provider sources
+4. build and install the provider locally by running:
+   `make install`
+5. test the provider against examples in [./examples](./examples) as:
+   1. reference the `localhost/va/awslex` version of the provider
+   2. remove `.terraform.lock.hcl` between `make install` iterations
+6. re-run integrations test(s) as:
+   `make test`
 
 ## Release
 
@@ -70,3 +50,17 @@ Release Steps:
 * Re-run terraform init against the release in the registry (to make sure it has sync'd from github)
 * Test the released provider in a pipeline
 * Push commit and do pull request
+ 
+## Adding Dependencies
+
+This provider uses [Go modules](https://github.com/golang/go/wiki/Modules).
+Please see the Go documentation for the most up to date information about using Go modules.
+
+To add a new dependency `github.com/author/dependency` to your Terraform provider:
+
+```
+go get github.com/author/dependency
+go mod tidy
+```
+
+Then commit the changes to `go.mod` and `go.sum`.

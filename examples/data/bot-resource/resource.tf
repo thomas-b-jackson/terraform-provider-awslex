@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     awslex = {
-      version = "0.1"
-      source  = "thomas-b-jackson/va/awslex"
+      version = "0.2.0-beta3"
+      source  = "localhost/va/awslex"
     }
   }
 }
@@ -13,9 +13,9 @@ provider "awslex" {
 
 data "awslex_bot_resource" "socal_gas_qnabot" {
 
-  id = "QU1ORIZZTP"
-
-  alias = "version7"
+  # id and alias for stable dev
+  id = "C5H22UIPWC"
+  alias = "latest"
 
 }
 

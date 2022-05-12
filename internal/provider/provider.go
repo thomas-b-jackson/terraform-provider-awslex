@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -48,8 +49,8 @@ func configure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.D
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  "Unable to create ask client",
-			Detail:   "Unable to create ask client",
+			Summary:  "Unable to create aws client",
+			Detail:   fmt.Sprintf("Unable to create aws client: %s", err),
 		})
 		return nil, diags
 	}

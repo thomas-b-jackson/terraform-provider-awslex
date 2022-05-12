@@ -11,6 +11,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/lexmodelsv2"
 	"github.com/aws/aws-sdk-go-v2/service/lexmodelsv2/types"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 type LexBot struct {
@@ -24,11 +25,14 @@ type LexBot struct {
 	LambdaArn      string
 	IamRoleArn     string
 	SourceCodeHash string
+	Tags           map[string]string
 }
 
 // wait up to this many seconds for long-running bot operations to to complete
 const BotWaitTimeoutSec = 60
 const DraftVersion = "DRAFT"
+
+var ttl int32 = 100
 
 func (c *AwsClient) GetBot(botId string, alias string) (LexBot, error) {
 
@@ -72,6 +76,19 @@ func (c *AwsClient) GetBot(botId string, alias string) (LexBot, error) {
 	}
 
 	if bot.AliasId != "" {
+
+		// get tags associated with the bot alias
+		listTagsForResourceOutput, err := c.Client.ListTagsForResource(context.TODO(),
+			&lexmodelsv2.ListTagsForResourceInput{
+				ResourceARN: getAddr(getAliasArn(botId, bot.AliasId, c.Region, c.AccountId)),
+			})
+
+		if err == nil && listTagsForResourceOutput != nil && listTagsForResourceOutput.Tags != nil {
+			bot.Tags = make(map[string]string)
+			for key, val := range listTagsForResourceOutput.Tags {
+				bot.Tags[key] = val
+			}
+		}
 
 		// describe the bot to get its lambda arn
 		var describeBotAliasOutput *lexmodelsv2.DescribeBotAliasOutput
@@ -181,45 +198,76 @@ func (c *AwsClient) CreateBot(bot *LexBot) error {
 	return err
 }
 
-func (c *AwsClient) UpdateBot(bot *LexBot) error {
+func (c *AwsClient) UpdateBot(bot *LexBot, d *schema.ResourceData) error {
 
-	// put the archive containing intents and slots in s3
-	// (in a location determined by the aws lex sdk)
-	uploadId, err := c.upload(bot.ArchivePath)
+	var err error
 
-	if err != nil {
-		return err
+	if d.HasChange("name") || d.HasChange("description") || d.HasChange("iam_role") {
+
+		_, err := c.Client.UpdateBot(context.TODO(), &lexmodelsv2.UpdateBotInput{
+			BotId:   &bot.Id,
+			BotName: &bot.Name,
+			DataPrivacy: &types.DataPrivacy{
+				ChildDirected: false,
+			},
+			RoleArn:                 &bot.IamRoleArn,
+			Description:             &bot.Description,
+			IdleSessionTTLInSeconds: &ttl,
+		})
+
+		if err != nil {
+			return err
+		}
 	}
 
-	// import the bot intents and slots into the bot
-	err = c.importBot(uploadId, *bot)
+	if d.HasChange("source_code_hash") {
 
-	if err != nil {
-		return err
+		// put the archive containing intents and slots in s3
+		// (in a location determined by the aws lex sdk)
+		uploadId, err := c.upload(bot.ArchivePath)
+
+		if err != nil {
+			return err
+		}
+
+		// import the bot intents and slots into the bot
+		err = c.importBot(uploadId, *bot)
+
+		if err != nil {
+			return err
+		}
+
+		// create a new version for the imported bot
+		err = c.createVersion(bot)
+
+		if err != nil {
+			return err
+		}
+
+		// build the bot
+		err = c.buildBot(bot)
 	}
 
-	// create a new version for the imported bot
-	err = c.createVersion(bot)
-
-	if err != nil {
-		return err
-	}
-
-	// create or update alias for the imported bot
+	// create or update alias for the bot
 	err = c.createOrUpdateAlias(bot)
 
 	if err != nil {
 		return err
 	}
 
-	// build the bot
-	err = c.buildBot(bot)
+	if d.HasChange("tags") {
+		// updated tags on alias
+		log.Printf("[DEBUG] adding tags to alias: %v\n", bot.Tags)
+		_, err = c.Client.TagResource(context.TODO(), &lexmodelsv2.TagResourceInput{
+			ResourceARN: getAddr(getAliasArn(bot.Id, bot.AliasId, c.Region, c.AccountId)),
+			Tags:        bot.Tags,
+		})
+	}
 
 	return err
 }
 func (c *AwsClient) createBot(bot *LexBot) error {
 
-	var ttl int32 = 100
 	createBotOutput, err := c.Client.CreateBot(context.TODO(), &lexmodelsv2.CreateBotInput{
 		BotName: &bot.Name,
 		DataPrivacy: &types.DataPrivacy{
@@ -557,11 +605,17 @@ func (c *AwsClient) updateAlias(bot *LexBot) error {
 
 func (c *AwsClient) createAlias(bot *LexBot) error {
 
+	botTags := make(map[string]string)
+	for key, val := range bot.Tags {
+		botTags[key] = val
+	}
+
 	// create the alias
 	createBotAliasOutput, err := c.Client.CreateBotAlias(context.TODO(), &lexmodelsv2.CreateBotAliasInput{
 		BotId:        &bot.Id,
 		BotAliasName: &bot.Alias,
 		BotVersion:   &bot.Version,
+		Tags:         botTags,
 		BotAliasLocaleSettings: map[string]types.BotAliasLocaleSettings{
 			"en_US": {
 				CodeHookSpecification: &types.CodeHookSpecification{
@@ -678,4 +732,8 @@ func (c *AwsClient) DeleteBot(botId string) error {
 
 func getAddr(s string) *string {
 	return &s
+}
+
+func getAliasArn(botId string, aliasId string, accountId string, region string) string {
+	return fmt.Sprintf("arn:aws:lex:%s:%s:bot-alias/%s/%s", accountId, region, botId, aliasId)
 }
